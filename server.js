@@ -307,6 +307,20 @@ app.delete('/api/customer/:id',
 
 
 /*############## EMPLOYEE ##############*/
+app.post('/api/admin/Addemp',async (req,res)=>{
+    const {username, password, firstName, lastName, email, gender } = req.body;
+ 
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(password, salt);  
+ 
+    const sql = `INSERT INTO employee(username, password, firstName, lastName, email, gender,positionID
+                )VALUES(?, ?, ?, ?, ?, ?, 1)`;            
+    db.query(sql, [username, password_hash, firstName, lastName, email, gender], (err) => {
+        if (err) throw err;
+            res.send({ 'message': 'เพิ่มข้อมูลพนักงานเรียบร้อยแล้ว', 'status': true });
+        });                    
+})
+
 //Login (employee/admin)
 app.post('/api/admin/login',
     async function(req, res){
@@ -453,7 +467,7 @@ app.post('/api/employee',
             }            
 
             //receive data from users
-            const {username, firstName, lastName, email, gender } = req.body;
+            const {username, firstName, lastName, email, gender, positionID } = req.body;
 
             //check existing username
             let sql="SELECT * FROM employee WHERE username=?";
@@ -468,9 +482,9 @@ app.post('/api/employee',
                     
                     //save data into database                
                     let sql = `INSERT INTO employee(
-                            username, password, firstName, lastName, email, gender
-                            )VALUES(?, ?, ?, ?, ?, ?)`;   
-                    let params = [username, password_hash, firstName, lastName, email, gender];
+                            username, password, firstName, lastName, email, gender, positionID
+                            )VALUES(?, ?, ?, ?, ?, ?, 0)`;   
+                    let params = [username, password_hash, firstName, lastName, email, gender, positionID];
                 
                     db.query(sql, params, (err, result) => {
                         if (err) throw err;
@@ -580,7 +594,7 @@ app.delete('/api/employee/:id',
 
 /*############## PRODUCT ##############*/
 //List products
-app.get('/api/product',
+/*app.get('/api/product',
     function(req, res){             
         const token = req.headers["authorization"].replace("Bearer ", "");
             
@@ -757,7 +771,7 @@ app.delete('/api/product/:id',
         }
         
     }
-);
+);*/
 
 
 // Create an HTTPS server
